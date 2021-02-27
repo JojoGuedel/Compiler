@@ -15,5 +15,11 @@ namespace Compiler
             Root = root;
             EndOfFileToken = endOfFileToken;
         }
+
+        public static SyntaxTree Parse(string inputString)
+        {
+            Parser parser = new Parser(inputString);
+            return parser.Parse();
+        }
     }
 }

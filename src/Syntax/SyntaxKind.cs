@@ -20,5 +20,6 @@ namespace Compiler
 
         NumberExpression,
         BinaryExpression,
+        ParenthesizedExpression,
     }
 }

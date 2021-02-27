@@ -8,7 +8,7 @@ namespace Compiler
     {
         static void Main(string[] args)
         {
-            Parser parser;
+            bool showTree = false;
             string inputString;
             List<SyntaxToken> tokens = new List<SyntaxToken>();
 
@@ -17,20 +17,40 @@ namespace Compiler
                 Console.Write("> ");
                 inputString = Console.ReadLine();
 
+                if (inputString == "#toggleTree")
+                {
+                    showTree = !showTree;
+                    Console.WriteLine(showTree? "Parser tree is now visible" : "Parser tree is now hidden");
+                    continue;
+                }
+                else if (inputString == "#clear")
+                {
+                    Console.Clear();
+                    continue;
+                }
+
                 if (string.IsNullOrWhiteSpace(inputString)) return;
 
-                parser = new Parser(inputString);
-                SyntaxTree syntaxTree = parser.Parse();
+                SyntaxTree syntaxTree = SyntaxTree.Parse(inputString);
 
                 ConsoleColor color = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                PrettyPrint(syntaxTree.Root);
-                Console.ForegroundColor = color;
-
-                if (syntaxTree.Diagnostics.Any())
+                if (showTree)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    foreach (DiagnosticMessage message in parser.Diagnostics) message.Print();
+                    PrettyPrint(syntaxTree.Root);
+                    Console.ForegroundColor = color;
+                }
+
+                if (!syntaxTree.Diagnostics.Any())
+                {
+                    Evaluator evaluator = new Evaluator(syntaxTree.Root);
+                    int result = evaluator.Evaluate();
+                    Console.WriteLine(result);
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    foreach (DiagnosticMessage message in syntaxTree.Diagnostics) message.Print();
                     Console.ForegroundColor = color;
                 }
             }

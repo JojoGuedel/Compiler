@@ -167,7 +167,7 @@ namespace Compiler
 
             _TokenKind = SyntaxKind.NumberToken;
             _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
-            int.TryParse(_TokenClearText, out int tokenValue);
+            if (!int.TryParse(_TokenClearText, out int tokenValue)) _Diagnostics.Add(new DiagnosticMessage($"[Error] the number '{_TokenClearText}' cannot be represented by an Int32"));
             _TokenValue = tokenValue;
         }
 

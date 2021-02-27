@@ -43,17 +43,33 @@ namespace Compiler
 
         public SyntaxTree Parse()
         {
-            ExpressionSyntax expression = _ParseExpression();
+            ExpressionSyntax expression = _ParseTerm();
             SyntaxToken endOfFileToken = _Match(SyntaxKind.EndOfFileToken);
             return new SyntaxTree(_Diagnostics, expression, endOfFileToken);
         }
 
-        private ExpressionSyntax _ParseExpression()
+        private ExpressionSyntax _ParseTerm()
         {
-            ExpressionSyntax left = ParsePrimaryExpression();
+            ExpressionSyntax left = _ParseFactor();
 
             while (_CurrentToken.Kind == SyntaxKind.PlusToken
                 || _CurrentToken.Kind == SyntaxKind.MinusToken)
+            {
+                SyntaxToken operatorToken = NextToken();
+                ExpressionSyntax right = _ParseFactor();
+
+                left = new BinaryExpressionSyntax(left, operatorToken, right);
+            }
+
+            return left;
+        }
+
+        private ExpressionSyntax _ParseFactor()
+        {
+            ExpressionSyntax left = ParsePrimaryExpression();
+
+            while (_CurrentToken.Kind == SyntaxKind.StarToken
+                || _CurrentToken.Kind == SyntaxKind.SlashToken)
             {
                 SyntaxToken operatorToken = NextToken();
                 ExpressionSyntax right = ParsePrimaryExpression();
@@ -66,8 +82,18 @@ namespace Compiler
 
         private ExpressionSyntax ParsePrimaryExpression()
         {
-            SyntaxToken numberToken = _Match(SyntaxKind.NumberToken);
-            return new NumberExpressionSyntax(numberToken);
+            if (_CurrentToken.Kind == SyntaxKind.OpenBracketToken)
+            {
+                SyntaxToken openBracketToken = NextToken();
+                ExpressionSyntax expression = _ParseTerm();
+                SyntaxToken closeBracketToken = _Match(SyntaxKind.CloseBracketToken);
+                return new ParenthesizedExpressionSyntax(openBracketToken, expression, closeBracketToken);
+            }
+            else
+            {
+                SyntaxToken numberToken = _Match(SyntaxKind.NumberToken);
+                return new NumberExpressionSyntax(numberToken);
+            }
         }
     }
 }
