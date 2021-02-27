@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Solver_01
+namespace Compiler
 {
     class SyntaxToken : SyntaxNode
     {
@@ -18,6 +18,5 @@ namespace Solver_01
             Value = value;
             ClearText = clearText;
         }
-
     }
 }

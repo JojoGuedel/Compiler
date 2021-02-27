@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Solver_01
+namespace Compiler
 {
     class Program
     {
@@ -20,12 +20,19 @@ namespace Solver_01
                 if (string.IsNullOrWhiteSpace(inputString)) return;
 
                 parser = new Parser(inputString);
-                ExpressionSyntax expression = parser.Parse();
+                SyntaxTree syntaxTree = parser.Parse();
 
                 ConsoleColor color = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                PrettyPrint(expression);
+                PrettyPrint(syntaxTree.Root);
                 Console.ForegroundColor = color;
+
+                if (syntaxTree.Diagnostics.Any())
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    foreach (DiagnosticMessage message in parser.Diagnostics) message.Print();
+                    Console.ForegroundColor = color;
+                }
             }
         }
 

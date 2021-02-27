@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 
-namespace Solver_01
+namespace Compiler
 {
     class Lexer
     {
         private int _Position;
         private string _StrInput;
+
+        private List<DiagnosticMessage> _Diagnostics;
+        public IEnumerable<DiagnosticMessage> Diagnostics => _Diagnostics;
 
         private List<SyntaxToken> _TokenList;
         private SyntaxKind _TokenKind;
@@ -17,6 +20,7 @@ namespace Solver_01
 
         public Lexer(string strInput)
         {
+            _Diagnostics = new List<DiagnosticMessage>();
             _TokenList = new List<SyntaxToken>();
             _StrInput = strInput;
             _Position = 0;
@@ -136,6 +140,7 @@ namespace Solver_01
                     _LexCloseCurlyBracket(); break;
                 
                 default:
+                    _Diagnostics.Add(new DiagnosticMessage($"[Error] invalid char: '{_CurrentChar}'"));
                     _LexInvalidChar(); break;
             }
 

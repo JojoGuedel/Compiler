@@ -1,4 +1,4 @@
-namespace Solver_01
+namespace Compiler
 {
     abstract class ExpressionSyntax : SyntaxNode
     {

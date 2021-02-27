@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Solver_01
+namespace Compiler
 {
     sealed class BinaryExpressionSyntax : ExpressionSyntax
     {

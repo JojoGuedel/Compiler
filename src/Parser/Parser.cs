@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Solver_01
+namespace Compiler
 {
     class Parser
     {
@@ -8,15 +8,28 @@ namespace Solver_01
 
         private SyntaxToken _CurrentToken { get => _PeekToken(0); }
         private SyntaxToken _PeekToken(int offset) => _Position + offset < _Tokens.Count? _Tokens[_Position + offset] : _Tokens[_Tokens.Count - 1];
-        private SyntaxToken _Match(SyntaxKind kind) =>_CurrentToken.Kind == kind? NextToken() : new SyntaxToken(kind, null, null);
+        private SyntaxToken _Match(SyntaxKind kind) 
+        {
+            if (_CurrentToken.Kind == kind) return NextToken();
+
+            _Diagnostics.Add(new DiagnosticMessage($"[Error] unexpected token <{_CurrentToken.Kind}>, expected <{kind}>"));
+            return new SyntaxToken(kind, null, null);
+        }
+
+        private List<DiagnosticMessage> _Diagnostics;
+        public IEnumerable<DiagnosticMessage> Diagnostics => _Diagnostics;
 
         private List<SyntaxToken> _Tokens;
         private Lexer _Lexer;
 
         public Parser(string strInput) 
         {
+            
             _Lexer = new Lexer(strInput);
             _Tokens = _Lexer.LexString();
+
+            _Diagnostics = new List<DiagnosticMessage>();
+            _Diagnostics.AddRange(_Lexer.Diagnostics);
 
             //foreach(SyntaxToken token in _Tokens) Console.WriteLine($"{token.Kind}({token.ClearText}): {token.Value}");
         }
@@ -28,7 +41,14 @@ namespace Solver_01
             return current;
         }
 
-        public ExpressionSyntax Parse() 
+        public SyntaxTree Parse()
+        {
+            ExpressionSyntax expression = _ParseExpression();
+            SyntaxToken endOfFileToken = _Match(SyntaxKind.EndOfFileToken);
+            return new SyntaxTree(_Diagnostics, expression, endOfFileToken);
+        }
+
+        private ExpressionSyntax _ParseExpression()
         {
             ExpressionSyntax left = ParsePrimaryExpression();
 
