@@ -2,7 +2,7 @@ using System;
 
 namespace Compiler
 {
-    class DiagnosticMessage
+    public sealed class DiagnosticMessage
     {
         private string _Message { get; }
 
@@ -13,10 +13,10 @@ namespace Compiler
 
         public void Print()
         {
-            ConsoleColor color = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(_Message);
-            Console.ForegroundColor = color;
+            Console.ResetColor();
+            ;
         }
     }
 }

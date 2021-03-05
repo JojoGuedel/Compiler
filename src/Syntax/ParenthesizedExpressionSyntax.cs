@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Compiler
 {
-    sealed class ParenthesizedExpressionSyntax : ExpressionSyntax
+    public sealed class ParenthesizedExpressionSyntax : ExpressionSyntax
     {
         public override SyntaxKind Kind => SyntaxKind.ParenthesizedExpression;
         public override IEnumerable<SyntaxNode> GetChildren() { yield return OpenBracketToken; 

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Compiler
 {
-    class Program
+    internal static class Program
     {
         static void Main(string[] args)
         {
@@ -15,7 +15,11 @@ namespace Compiler
             while (true)
             {
                 Console.Write("> ");
+                /*
+                inputString = "-1";
+                */
                 inputString = Console.ReadLine();
+
 
                 if (inputString == "#toggleTree")
                 {
@@ -32,18 +36,21 @@ namespace Compiler
                 if (string.IsNullOrWhiteSpace(inputString)) return;
 
                 SyntaxTree syntaxTree = SyntaxTree.Parse(inputString);
+                Binder binder = new Binder();
+                BoundExpression boundExpression = binder.BindExpression(syntaxTree.Root);
+                IReadOnlyList<DiagnosticMessage> diagnostics = syntaxTree.Diagnostics;
+                
 
-                ConsoleColor color = Console.ForegroundColor;
                 if (showTree)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     PrettyPrint(syntaxTree.Root);
-                    Console.ForegroundColor = color;
+                    Console.ResetColor();
                 }
 
-                if (!syntaxTree.Diagnostics.Any())
+                if (!diagnostics.Any())
                 {
-                    Evaluator evaluator = new Evaluator(syntaxTree.Root);
+                    Evaluator evaluator = new Evaluator(boundExpression);
                     int result = evaluator.Evaluate();
                     Console.WriteLine(result);
                 }
@@ -51,7 +58,7 @@ namespace Compiler
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
                     foreach (DiagnosticMessage message in syntaxTree.Diagnostics) message.Print();
-                    Console.ForegroundColor = color;
+                    Console.ResetColor();
                 }
             }
         }

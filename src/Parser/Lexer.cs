@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Compiler
 {
-    class Lexer
+    internal sealed class Lexer
     {
         private int _Position;
         private string _StrInput;

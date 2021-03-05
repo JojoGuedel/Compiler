@@ -1,8 +1,9 @@
 namespace Compiler
 {
-    enum SyntaxKind
+    public enum SyntaxKind
     {
         InvalidCharToken,
+        EndOfFileToken,
         WhitespaceToken,
         NumberToken,
         NameToken,
@@ -16,10 +17,10 @@ namespace Compiler
         CloseCurlyBracketToken,
         OpenAngleBracketToken,
         CloseAngleBracketToken,
-        EndOfFileToken,
 
-        NumberExpression,
+        LiteralExpression,
         BinaryExpression,
         ParenthesizedExpression,
+        UnaryExpression,
     }
 }

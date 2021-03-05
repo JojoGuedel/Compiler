@@ -2,11 +2,11 @@ using System;
 
 namespace Compiler
 {
-    class Evaluator
+    internal class Evaluator
     {
-        private ExpressionSyntax _Root { get; }
+        private BoundExpression _Root { get; }
 
-        public Evaluator(ExpressionSyntax root)
+        public Evaluator(BoundExpression root)
         {
             _Root = root;
         }
@@ -16,25 +16,34 @@ namespace Compiler
             return EvaluateExpression(_Root);
         }
 
-        private int EvaluateExpression(ExpressionSyntax node)
+        private int EvaluateExpression(BoundExpression node)
         {
-            if (node is NumberExpressionSyntax n) return (int)n.NumberToken.Value;
-            if (node is BinaryExpressionSyntax b)
+            if (node is BoundLiteralExpression n) return (int)n.Value;
+            if (node is BoundUnaryExpression u) 
+            {
+                int right = EvaluateExpression(u.Right);
+
+                switch(u.UnaryOperatorKind)
+                {
+                    case BoundUnaryOperatorKind.Identity: return right;
+                    case BoundUnaryOperatorKind.Negation: return -right;
+                    default: throw new Exception($"Unexpected unary operatorkind {u.UnaryOperatorKind}");
+                }
+            }
+            if (node is BoundBinaryExpression b)
             {
                 int left = EvaluateExpression(b.Left);
                 int right = EvaluateExpression(b.Right);
 
-                switch (b.OperatorToken.Kind)
+                switch (b.BinaryOperatorKind)
                 {
-                    case SyntaxKind.PlusToken: return left + right;
-                    case SyntaxKind.MinusToken: return left - right;
-                    case SyntaxKind.StarToken: return left * right;
-                    case SyntaxKind.SlashToken: return left / right;
-                    default: throw new Exception($"Unexpected binary operatorkind {b.OperatorToken.Kind}");
+                    case BoundBinaryOperatorKind.Addition: return left + right;
+                    case BoundBinaryOperatorKind.Subtraction: return left - right;
+                    case BoundBinaryOperatorKind.Multiplication: return left * right;
+                    case BoundBinaryOperatorKind.Division: return left / right;
+                    default: throw new Exception($"Unexpected binary operatorkind {b.BinaryOperatorKind}");
                 }
             }
-            
-            if (node is ParenthesizedExpressionSyntax p) return EvaluateExpression(p.Expression);
 
             throw new Exception($"Unexprected node {node.Kind}");
         }

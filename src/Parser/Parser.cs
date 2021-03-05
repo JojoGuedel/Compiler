@@ -2,18 +2,24 @@ using System.Collections.Generic;
 
 namespace Compiler
 {
-    class Parser
+    internal sealed class Parser
     {
         private int _Position;
 
         private SyntaxToken _CurrentToken { get => _PeekToken(0); }
         private SyntaxToken _PeekToken(int offset) => _Position + offset < _Tokens.Count? _Tokens[_Position + offset] : _Tokens[_Tokens.Count - 1];
-        private SyntaxToken _Match(SyntaxKind kind) 
+        private SyntaxToken _MatchToken(SyntaxKind kind) 
         {
-            if (_CurrentToken.Kind == kind) return NextToken();
+            if (_CurrentToken.Kind == kind) return _NextToken();
 
             _Diagnostics.Add(new DiagnosticMessage($"[Error] unexpected token <{_CurrentToken.Kind}>, expected <{kind}>"));
             return new SyntaxToken(kind, null, null);
+        }
+        private SyntaxToken _NextToken()
+        {
+            SyntaxToken current = _CurrentToken;
+            _Position++;
+            return current;
         }
 
         private List<DiagnosticMessage> _Diagnostics;
@@ -24,7 +30,6 @@ namespace Compiler
 
         public Parser(string strInput) 
         {
-            
             _Lexer = new Lexer(strInput);
             _Tokens = _Lexer.LexString();
 
@@ -34,46 +39,33 @@ namespace Compiler
             //foreach(SyntaxToken token in _Tokens) Console.WriteLine($"{token.Kind}({token.ClearText}): {token.Value}");
         }
 
-        private SyntaxToken NextToken()
-        {
-            SyntaxToken current = _CurrentToken;
-            _Position++;
-            return current;
-        }
-
         public SyntaxTree Parse()
         {
-            ExpressionSyntax expression = _ParseTerm();
-            SyntaxToken endOfFileToken = _Match(SyntaxKind.EndOfFileToken);
+            ExpressionSyntax expression = _ParseExpression();
+            SyntaxToken endOfFileToken = _MatchToken(SyntaxKind.EndOfFileToken);
             return new SyntaxTree(_Diagnostics, expression, endOfFileToken);
         }
 
-        private ExpressionSyntax _ParseTerm()
+        private ExpressionSyntax _ParseExpression(int parentPrecedence = 0)
         {
-            ExpressionSyntax left = _ParseFactor();
+            ExpressionSyntax left;
+            int unaryOperatorPrecedence = _CurrentToken.Kind.GetUnaryOperatorPrecedence();
 
-            while (_CurrentToken.Kind == SyntaxKind.PlusToken
-                || _CurrentToken.Kind == SyntaxKind.MinusToken)
+            if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
             {
-                SyntaxToken operatorToken = NextToken();
-                ExpressionSyntax right = _ParseFactor();
-
-                left = new BinaryExpressionSyntax(left, operatorToken, right);
+                SyntaxToken operatorToken = _NextToken();
+                ExpressionSyntax right = _ParseExpression(unaryOperatorPrecedence);
+                left = new UnaryExpressionSyntax(operatorToken, right);
             }
+            else left = ParsePrimaryExpression();
 
-            return left;
-        }
-
-        private ExpressionSyntax _ParseFactor()
-        {
-            ExpressionSyntax left = ParsePrimaryExpression();
-
-            while (_CurrentToken.Kind == SyntaxKind.StarToken
-                || _CurrentToken.Kind == SyntaxKind.SlashToken)
+            while (true)
             {
-                SyntaxToken operatorToken = NextToken();
-                ExpressionSyntax right = ParsePrimaryExpression();
+                int precedence = _CurrentToken.Kind.GetBinaryOperatorPrecedence();
+                if (precedence == 0 || precedence <= parentPrecedence) break;
 
+                SyntaxToken operatorToken = _NextToken();
+                ExpressionSyntax right = _ParseExpression(precedence);
                 left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
 
@@ -84,15 +76,15 @@ namespace Compiler
         {
             if (_CurrentToken.Kind == SyntaxKind.OpenBracketToken)
             {
-                SyntaxToken openBracketToken = NextToken();
-                ExpressionSyntax expression = _ParseTerm();
-                SyntaxToken closeBracketToken = _Match(SyntaxKind.CloseBracketToken);
+                SyntaxToken openBracketToken = _NextToken();
+                ExpressionSyntax expression = _ParseExpression();
+                SyntaxToken closeBracketToken = _MatchToken(SyntaxKind.CloseBracketToken);
                 return new ParenthesizedExpressionSyntax(openBracketToken, expression, closeBracketToken);
             }
             else
             {
-                SyntaxToken numberToken = _Match(SyntaxKind.NumberToken);
-                return new NumberExpressionSyntax(numberToken);
+                SyntaxToken numberToken = _MatchToken(SyntaxKind.NumberToken);
+                return new LiteralExpressionSyntax(numberToken);
             }
         }
     }

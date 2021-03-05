@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Compiler
 {
-    sealed class SyntaxTree
+    public sealed class SyntaxTree
     {
         public IReadOnlyList<DiagnosticMessage> Diagnostics { get; }
         public ExpressionSyntax Root { get; }
