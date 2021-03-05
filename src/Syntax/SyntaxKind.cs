@@ -17,6 +17,10 @@ namespace Compiler
         CloseCurlyBracketToken,
         OpenAngleBracketToken,
         CloseAngleBracketToken,
+        IdentifierToken,
+        
+        FalseKeyword,
+        TrueKeyword,
 
         LiteralExpression,
         BinaryExpression,

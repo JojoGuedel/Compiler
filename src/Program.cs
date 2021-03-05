@@ -16,7 +16,7 @@ namespace Compiler
             {
                 Console.Write("> ");
                 /*
-                inputString = "-1";
+                inputString = "true";
                 */
                 inputString = Console.ReadLine();
 
@@ -39,6 +39,7 @@ namespace Compiler
                 Binder binder = new Binder();
                 BoundExpression boundExpression = binder.BindExpression(syntaxTree.Root);
                 IReadOnlyList<DiagnosticMessage> diagnostics = syntaxTree.Diagnostics;
+                diagnostics = diagnostics.Concat(binder.Diagnostics).ToArray();
                 
 
                 if (showTree)
@@ -51,14 +52,12 @@ namespace Compiler
                 if (!diagnostics.Any())
                 {
                     Evaluator evaluator = new Evaluator(boundExpression);
-                    int result = evaluator.Evaluate();
+                    object result = evaluator.Evaluate();
                     Console.WriteLine(result);
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    foreach (DiagnosticMessage message in syntaxTree.Diagnostics) message.Print();
-                    Console.ResetColor();
+                    foreach (DiagnosticMessage message in diagnostics) message.Print();
                 }
             }
         }

@@ -27,7 +27,7 @@ namespace Compiler
 
         private BoundExpression _BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
-            object value = syntax.LiteralToken.Value as int? ?? 0;
+            object value = syntax.Value ?? 0;
             return new BoundLiteralExpression(value);
         }
 
@@ -48,6 +48,7 @@ namespace Compiler
         private BoundUnaryOperatorKind? _BindUnaryOperatorKind(SyntaxKind kind, Type type)
         {
             if (type != typeof(int)) return null;
+            Console.WriteLine(type.ToString());
 
             switch(kind)
             {

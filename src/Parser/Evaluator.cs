@@ -11,17 +11,17 @@ namespace Compiler
             _Root = root;
         }
 
-        public int Evaluate()
+        public object Evaluate()
         {
             return EvaluateExpression(_Root);
         }
 
-        private int EvaluateExpression(BoundExpression node)
+        private object EvaluateExpression(BoundExpression node)
         {
-            if (node is BoundLiteralExpression n) return (int)n.Value;
+            if (node is BoundLiteralExpression n) return n.Value;
             if (node is BoundUnaryExpression u) 
             {
-                int right = EvaluateExpression(u.Right);
+                int right = (int) EvaluateExpression(u.Right);
 
                 switch(u.UnaryOperatorKind)
                 {
@@ -32,8 +32,8 @@ namespace Compiler
             }
             if (node is BoundBinaryExpression b)
             {
-                int left = EvaluateExpression(b.Left);
-                int right = EvaluateExpression(b.Right);
+                int left = (int) EvaluateExpression(b.Left);
+                int right = (int) EvaluateExpression(b.Right);
 
                 switch (b.BinaryOperatorKind)
                 {

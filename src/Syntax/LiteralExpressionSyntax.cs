@@ -8,10 +8,16 @@ namespace Compiler
         public override IEnumerable<SyntaxNode> GetChildren() { yield return LiteralToken; }
 
         public SyntaxToken LiteralToken { get; }
+        public object Value { get; }
 
-        public LiteralExpressionSyntax(SyntaxToken numberToken)
+        public LiteralExpressionSyntax(SyntaxToken literalToken) : this(literalToken, literalToken.Value)
         {
-            LiteralToken = numberToken;
+        }
+
+        public LiteralExpressionSyntax(SyntaxToken literalToken, object value)
+        {
+            LiteralToken = literalToken;
+            Value = value;
         }
     }
 }

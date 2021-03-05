@@ -177,8 +177,8 @@ namespace Compiler
 
             while (char.IsLetterOrDigit(_CurrentChar)) _Next();
 
-            _TokenKind = SyntaxKind.NameToken;
             _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
+            _TokenKind = SyntaxFacts.GetKeywordKind(_TokenClearText);
             _TokenValue = null;
         }
 

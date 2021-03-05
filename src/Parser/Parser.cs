@@ -74,17 +74,22 @@ namespace Compiler
 
         private ExpressionSyntax ParsePrimaryExpression()
         {
-            if (_CurrentToken.Kind == SyntaxKind.OpenBracketToken)
+            switch (_CurrentToken.Kind)
             {
-                SyntaxToken openBracketToken = _NextToken();
-                ExpressionSyntax expression = _ParseExpression();
-                SyntaxToken closeBracketToken = _MatchToken(SyntaxKind.CloseBracketToken);
-                return new ParenthesizedExpressionSyntax(openBracketToken, expression, closeBracketToken);
-            }
-            else
-            {
-                SyntaxToken numberToken = _MatchToken(SyntaxKind.NumberToken);
-                return new LiteralExpressionSyntax(numberToken);
+                case SyntaxKind.OpenBracketToken:
+                    SyntaxToken openBracketToken = _NextToken();
+                    ExpressionSyntax expression = _ParseExpression();
+                    SyntaxToken closeBracketToken = _MatchToken(SyntaxKind.CloseBracketToken);
+                    return new ParenthesizedExpressionSyntax(openBracketToken, expression, closeBracketToken);
+
+                case SyntaxKind.TrueKeyword:
+                case SyntaxKind.FalseKeyword:
+                    bool value = _CurrentToken.Kind == SyntaxKind.TrueKeyword;
+                    return new LiteralExpressionSyntax(_NextToken(), value);
+
+                default:
+                    SyntaxToken numberToken = _MatchToken(SyntaxKind.NumberToken);
+                    return new LiteralExpressionSyntax(numberToken);
             }
         }
     }

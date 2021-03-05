@@ -1,3 +1,5 @@
+using System;
+
 namespace Compiler
 {
     internal static class SyntaxFacts
@@ -26,6 +28,19 @@ namespace Compiler
                     return 1;
                 default: 
                     return 0;
+            }
+        }
+
+        internal static SyntaxKind GetKeywordKind(string clearText)
+        {
+            switch(clearText)
+            {
+                case "true":
+                    return SyntaxKind.TrueKeyword;
+                case "false":
+                    return SyntaxKind.FalseKeyword;
+                default:
+                    return SyntaxKind.IdentifierToken;
             }
         }
     }
