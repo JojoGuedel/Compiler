@@ -5,7 +5,7 @@ namespace Compiler
     internal sealed class BoundBinaryExpression : BoundExpression
     {
         public override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
-        public override Type Type => Left.Type;
+        public override Type Type => BinaryOperator.ResultType;
 
         public BoundExpression Left { get; }
         public BoundBinaryOperator BinaryOperator { get; }

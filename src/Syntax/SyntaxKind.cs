@@ -18,7 +18,9 @@ namespace Compiler
         OpenAngleBracketToken,
         CloseAngleBracketToken,
         IdentifierToken,
-        BangToken,
+        BangTokenToken,
+        EqualsEqualsToken,
+        BangEquals,
         AmpersantAmpersantToken,
         PipePipeToken,
         

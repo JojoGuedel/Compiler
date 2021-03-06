@@ -5,7 +5,7 @@ namespace Compiler
     internal sealed class BoundUnaryExpression : BoundExpression
     {
         public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
-        public override Type Type => Right.Type;
+        public override Type Type => UnaryOperator.ResultType;
 
         public BoundUnaryOperator UnaryOperator { get; }
         public BoundExpression Right { get; }

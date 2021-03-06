@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Compiler
@@ -122,6 +121,9 @@ namespace Compiler
                 case 'Z':
                     _LexLetter(); break;
 
+                case '=':
+                    _LexEqualsToken(); break;
+
                 case '+':
                     _LexPlus(); break;
                 case '-':
@@ -187,6 +189,20 @@ namespace Compiler
             _TokenKind = SyntaxFacts.GetKeywordKind(_TokenClearText);
         }
 
+        private void _LexEqualsToken()
+        {
+            switch(_PeekChar(1))
+            {
+                case '=':
+                    _Next(2);
+                    _TokenKind = SyntaxKind.EqualsEqualsToken;
+                    _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
+                    break;
+                default:
+                    _LexInvalidChar(); break;
+            }
+        }
+
         private void _LexPlus()
         {
             _TokenKind = SyntaxKind.PlusToken;
@@ -213,8 +229,19 @@ namespace Compiler
 
         private void _LexBangToken()
         {
-            _TokenKind = SyntaxKind.BangToken;
-            _TokenClearText = _Next().ToString();
+            switch(_PeekChar(1))
+            {
+                case '=':
+                    _Next(2);
+                    _TokenKind = SyntaxKind.BangEquals;
+                    _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
+                    break;
+                default:
+                    _TokenKind = SyntaxKind.BangTokenToken;
+                    _TokenClearText = _Next().ToString();
+                    break;
+            }
+
         }
 
         private void _LexAmpersantToken()

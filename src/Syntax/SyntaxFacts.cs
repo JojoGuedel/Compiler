@@ -1,5 +1,3 @@
-using System;
-
 namespace Compiler
 {
     internal static class SyntaxFacts
@@ -10,8 +8,8 @@ namespace Compiler
             {
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
-                case SyntaxKind.BangToken:
-                    return 5;
+                case SyntaxKind.BangTokenToken:
+                    return 6;
                 default: 
                     return 0;
             }
@@ -23,9 +21,12 @@ namespace Compiler
             {
                 case SyntaxKind.StarToken:
                 case SyntaxKind.SlashToken:
-                    return 4;
+                    return 5;
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
+                    return 4;
+                case SyntaxKind.EqualsEqualsToken:
+                case SyntaxKind.BangEquals:
                     return 3;
                 case SyntaxKind.AmpersantAmpersantToken:
                     return 2;

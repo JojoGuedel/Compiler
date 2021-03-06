@@ -8,5 +8,7 @@ namespace Compiler
         Division,
         LogicalOr,
         LogicalAnd,
+        Equals,
+        NotEquals,
     }
 }
