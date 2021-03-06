@@ -4,5 +4,6 @@ namespace Compiler
     {
         Identity,
         Negation,
+        LogicalNegation,
     }
 }

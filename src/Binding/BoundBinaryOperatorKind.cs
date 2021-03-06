@@ -6,5 +6,7 @@ namespace Compiler
         Subtraction,
         Multiplication,
         Division,
+        LogicalOr,
+        LogicalAnd,
     }
 }

@@ -4,6 +4,6 @@ namespace Compiler
     {
         UnaryExpression,
         LiteralExpression,
-        BinaryExpression
+        BinaryExpression,
     }
 }

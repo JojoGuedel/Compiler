@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Compiler
@@ -16,7 +17,8 @@ namespace Compiler
         private object _TokenValue;
         private string _TokenClearText;
 
-        private char _CurrentChar { get => _Position < _StrInput.Length ? _StrInput[_Position] : '\0'; }
+        private char _PeekChar(int offset) => _Position + offset < _StrInput.Length ? _StrInput[_Position + offset] : '\0';
+        private char _CurrentChar { get => _PeekChar(0); }
 
         public Lexer(string strInput)
         {
@@ -43,6 +45,9 @@ namespace Compiler
 
         public SyntaxToken Lex()
         {
+            _TokenPosition = _Position;
+            _TokenValue = null;
+
             switch (_CurrentChar)
             {
                 case '\0':
@@ -125,6 +130,12 @@ namespace Compiler
                     _LexStar(); break;
                 case '/':
                     _LexSlash(); break;
+                case '!':
+                    _LexBangToken(); break;
+                case '&':
+                    _LexAmpersantToken(); break;
+                case '|':
+                    _LexPipeToken(); break;
 
                 case '(':
                     _LexOpenBracket(); break;
@@ -140,7 +151,6 @@ namespace Compiler
                     _LexCloseCurlyBracket(); break;
                 
                 default:
-                    _Diagnostics.Add(new DiagnosticMessage($"[Error] invalid char: '{_CurrentChar}'"));
                     _LexInvalidChar(); break;
             }
 
@@ -149,19 +159,16 @@ namespace Compiler
 
         private void _LexWhitespace()
         {
-            _TokenPosition = _Position;
 
             while (char.IsWhiteSpace(_CurrentChar)) _Next();
 
             _TokenKind = SyntaxKind.WhitespaceToken;
             _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
-            _TokenValue = null;
         }
 
 
         private void _LexNumber()
         {
-            _TokenPosition = _Position;
 
             while (char.IsDigit(_CurrentChar)) _Next();
 
@@ -173,115 +180,125 @@ namespace Compiler
 
         private void _LexLetter()
         {
-            _TokenPosition = _Position;
 
             while (char.IsLetterOrDigit(_CurrentChar)) _Next();
 
             _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
             _TokenKind = SyntaxFacts.GetKeywordKind(_TokenClearText);
-            _TokenValue = null;
         }
 
         private void _LexPlus()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.PlusToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexMinus()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.MinusToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexStar()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.StarToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexSlash()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.SlashToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
+        }
+
+        private void _LexBangToken()
+        {
+            _TokenKind = SyntaxKind.BangToken;
+            _TokenClearText = _Next().ToString();
+        }
+
+        private void _LexAmpersantToken()
+        {
+            switch(_PeekChar(1))
+            {
+                case '&':
+                    _Next(2);
+                    _TokenKind = SyntaxKind.AmpersantAmpersantToken;
+                    _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
+                    break;
+                default:
+                    _LexInvalidChar(); break;
+            }
+        }
+
+        private void _LexPipeToken()
+        {
+            switch(_PeekChar(1))
+            {
+                case '|':
+                    _Next(2);
+                    _TokenKind = SyntaxKind.PipePipeToken;
+                    _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
+                    break;
+                default:
+                    _LexInvalidChar(); break;
+            }
         }
 
         private void _LexOpenBracket()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.OpenBracketToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexClosedBracket()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.CloseBracketToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexOpenAngleBracket()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.OpenAngleBracketToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexCloseAngleBracket()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.CloseAngleBracketToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexOpenCurlyBracket()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.OpenCurlyBracketToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexCloseCurlyBracket()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.CloseCurlyBracketToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexInvalidChar()
         {
-            _TokenPosition = _Position;
+            _Diagnostics.Add(new DiagnosticMessage($"[Error] invalid char: '{_CurrentChar}'"));
+
             _TokenKind = SyntaxKind.InvalidCharToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
 
         private void _LexEndOfFile()
         {
-            _TokenPosition = _Position;
             _TokenKind = SyntaxKind.EndOfFileToken;
             _TokenClearText = _Next().ToString();
-            _TokenValue = null;
         }
         
-        private char _Next()
+        private char _Next(int offset = 1)
         {
             char currentChar = _CurrentChar;
-            _Position++;
+            _Position += offset;
             return currentChar;
         }
     }
