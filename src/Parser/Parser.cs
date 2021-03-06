@@ -12,8 +12,8 @@ namespace Compiler
         {
             if (_CurrentToken.Kind == kind) return _NextToken();
 
-            _Diagnostics.Add(new DiagnosticMessage($"[Error] unexpected token <{_CurrentToken.Kind}>, expected <{kind}>"));
-            return new SyntaxToken(kind, null, null);
+            _DiagnosticBag.ReportUnexpectedToken(_CurrentToken, kind);
+            return new SyntaxToken(_CurrentToken.Position, kind, null, null);
         }
         private SyntaxToken _NextToken()
         {
@@ -22,8 +22,8 @@ namespace Compiler
             return current;
         }
 
-        private List<DiagnosticMessage> _Diagnostics;
-        public IEnumerable<DiagnosticMessage> Diagnostics => _Diagnostics;
+        private DiagnosticBag _DiagnosticBag = new DiagnosticBag();
+        public DiagnosticBag Diagnostics => _DiagnosticBag;
 
         private List<SyntaxToken> _Tokens;
         private Lexer _Lexer;
@@ -33,8 +33,7 @@ namespace Compiler
             _Lexer = new Lexer(strInput);
             _Tokens = _Lexer.LexString();
 
-            _Diagnostics = new List<DiagnosticMessage>();
-            _Diagnostics.AddRange(_Lexer.Diagnostics);
+            _DiagnosticBag.AddRange(_Lexer.Diagnostics);
 
             //foreach(SyntaxToken token in _Tokens) Console.WriteLine($"{token.Kind}({token.ClearText}): {token.Value}");
         }
@@ -43,7 +42,7 @@ namespace Compiler
         {
             ExpressionSyntax expression = _ParseExpression();
             SyntaxToken endOfFileToken = _MatchToken(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(_Diagnostics, expression, endOfFileToken);
+            return new SyntaxTree(_DiagnosticBag, expression, endOfFileToken);
         }
 
         private ExpressionSyntax _ParseExpression(int parentPrecedence = 0)

@@ -36,11 +36,10 @@ namespace Compiler
                 if (string.IsNullOrWhiteSpace(inputString)) return;
 
                 SyntaxTree syntaxTree = SyntaxTree.Parse(inputString);
-                Binder binder = new Binder();
-                BoundExpression boundExpression = binder.BindExpression(syntaxTree.Root);
-                IReadOnlyList<DiagnosticMessage> diagnostics = syntaxTree.Diagnostics;
-                diagnostics = diagnostics.Concat(binder.Diagnostics).ToArray();
-                
+                Compilation compilation = new Compilation(syntaxTree);
+                EvaluationResult result = compilation.Evaluate();
+
+                IReadOnlyList<Diagnostic> diagnostics = result.Diagnostics.ToArray();
 
                 if (showTree)
                 {
@@ -50,15 +49,20 @@ namespace Compiler
                 }
 
                 if (!diagnostics.Any())
-                {
-                    Evaluator evaluator = new Evaluator(boundExpression);
-                    object result = evaluator.Evaluate();
-                    Console.WriteLine(result);
-                }
+                    Console.WriteLine(result.Value);
+
                 else
-                {
-                    foreach (DiagnosticMessage message in diagnostics) message.Print();
-                }
+                    foreach (Diagnostic message in diagnostics) 
+                    {
+                        Console.WriteLine();
+                        message.Print();
+                        
+                        Console.Write("    ");
+                        Console.WriteLine(inputString);
+                        Console.Write("    ");
+                        for(int i = 0; i < message.Span.Start; i++) Console.Write(" ");
+                        Console.WriteLine("^");
+                    }
             }
         }
 

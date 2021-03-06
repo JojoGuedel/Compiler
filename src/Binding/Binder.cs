@@ -5,8 +5,8 @@ namespace Compiler
 {
     internal sealed class Binder
     {
-        private List<DiagnosticMessage> _Diagnostics = new List<DiagnosticMessage>();
-        public IEnumerable<DiagnosticMessage> Diagnostics => _Diagnostics;
+        private DiagnosticBag _DiagnosticBag = new DiagnosticBag();
+        public DiagnosticBag Diagnostics => _DiagnosticBag;
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -38,7 +38,7 @@ namespace Compiler
 
             if (boundUnaryOperator == null)
             {
-                _Diagnostics.Add(new DiagnosticMessage($"Unary operator '{syntax.OperatorToken.ClearText}' is not defined for type {boundRight.Type}"));
+                _DiagnosticBag.ReportUndefinedUnaryOperator(syntax.OperatorToken, boundRight.Type);
                 return boundRight;
             }
 
@@ -53,7 +53,7 @@ namespace Compiler
             
             if (boundBinaryOperator == null)
             {
-                _Diagnostics.Add(new DiagnosticMessage($"Binary operator '{syntax.OperatorToken.ClearText}' is not defined for type {boundLeft.Type}, {boundRight.Type}"));
+                _DiagnosticBag.ReportUndefinedBinaryOperator(syntax.OperatorToken, boundLeft.Type, boundRight.Type);
                 return boundRight;
             }
             

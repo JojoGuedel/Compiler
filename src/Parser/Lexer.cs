@@ -7,8 +7,8 @@ namespace Compiler
         private int _Position;
         private string _StrInput;
 
-        private List<DiagnosticMessage> _Diagnostics;
-        public IEnumerable<DiagnosticMessage> Diagnostics => _Diagnostics;
+        private DiagnosticBag _DiagnosticBag = new DiagnosticBag();
+        public DiagnosticBag Diagnostics => _DiagnosticBag;
 
         private List<SyntaxToken> _TokenList;
         private SyntaxKind _TokenKind;
@@ -21,7 +21,6 @@ namespace Compiler
 
         public Lexer(string strInput)
         {
-            _Diagnostics = new List<DiagnosticMessage>();
             _TokenList = new List<SyntaxToken>();
             _StrInput = strInput;
             _Position = 0;
@@ -156,7 +155,7 @@ namespace Compiler
                     _LexInvalidChar(); break;
             }
 
-            return new SyntaxToken(_TokenKind, _TokenValue, _TokenClearText);
+            return new SyntaxToken(_TokenPosition, _TokenKind, _TokenValue, _TokenClearText);
         }
 
         private void _LexWhitespace()
@@ -176,7 +175,8 @@ namespace Compiler
 
             _TokenKind = SyntaxKind.NumberToken;
             _TokenClearText = _StrInput.Substring(_TokenPosition, _Position - _TokenPosition);
-            if (!int.TryParse(_TokenClearText, out int tokenValue)) _Diagnostics.Add(new DiagnosticMessage($"[Error] the number '{_TokenClearText}' cannot be represented by an Int32"));
+            if (!int.TryParse(_TokenClearText, out int tokenValue)) 
+                _DiagnosticBag.ReportInvalidNumber(new TextSpan(_Position, _Position - _TokenPosition), _TokenClearText, typeof(int));
             _TokenValue = tokenValue;
         }
 
@@ -310,7 +310,7 @@ namespace Compiler
 
         private void _LexInvalidChar()
         {
-            _Diagnostics.Add(new DiagnosticMessage($"[Error] invalid char: '{_CurrentChar}'"));
+            _DiagnosticBag.ReportInvalidChar(new TextSpan(_Position, _Position - _TokenPosition), _CurrentChar);
 
             _TokenKind = SyntaxKind.InvalidCharToken;
             _TokenClearText = _Next().ToString();

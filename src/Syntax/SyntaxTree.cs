@@ -5,11 +5,11 @@ namespace Compiler
 {
     public sealed class SyntaxTree
     {
-        public IReadOnlyList<DiagnosticMessage> Diagnostics { get; }
+        public IReadOnlyList<Diagnostic> Diagnostics { get; }
         public ExpressionSyntax Root { get; }
         public SyntaxToken EndOfFileToken { get; }
 
-        public SyntaxTree(IEnumerable<DiagnosticMessage> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken)
+        public SyntaxTree(IEnumerable<Diagnostic> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken)
         {
             Diagnostics = diagnostics.ToArray();
             Root = root;
