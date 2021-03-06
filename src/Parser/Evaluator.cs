@@ -23,7 +23,7 @@ namespace Compiler
             {
                 object right = EvaluateExpression(u.Right);
 
-                switch(u.UnaryOperatorKind)
+                switch(u.UnaryOperator.Kind)
                 {
                     case BoundUnaryOperatorKind.Identity:
                         return (int) right;
@@ -31,7 +31,7 @@ namespace Compiler
                         return  -(int) right;
                     case BoundUnaryOperatorKind.LogicalNegation: 
                         return  ! (bool) right;
-                    default: throw new Exception($"Unexpected unary operatorkind {u.UnaryOperatorKind}");
+                    default: throw new Exception($"Unexpected unary operatorkind {u.UnaryOperator}");
                 }
             }
             if (node is BoundBinaryExpression b)
@@ -39,7 +39,7 @@ namespace Compiler
                 object left = EvaluateExpression(b.Left);
                 object right = EvaluateExpression(b.Right);
 
-                switch (b.BinaryOperatorKind)
+                switch (b.BinaryOperator.Kind)
                 {
                     case BoundBinaryOperatorKind.Addition: 
                         return (int)left + (int)right;
@@ -53,7 +53,7 @@ namespace Compiler
                         return (bool)left && (bool) right;
                     case BoundBinaryOperatorKind.LogicalOr:
                         return (bool)left || (bool) right;
-                    default: throw new Exception($"Unexpected binary operatorkind {b.BinaryOperatorKind}");
+                    default: throw new Exception($"Unexpected binary operatorkind {b.BinaryOperator}");
                 }
             }
 

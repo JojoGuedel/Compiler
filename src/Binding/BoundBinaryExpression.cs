@@ -8,14 +8,14 @@ namespace Compiler
         public override Type Type => Left.Type;
 
         public BoundExpression Left { get; }
-        public BoundBinaryOperatorKind BinaryOperatorKind { get; }
+        public BoundBinaryOperator BinaryOperator { get; }
         public BoundExpression Right { get; }
 
 
-        public BoundBinaryExpression(BoundExpression left, BoundBinaryOperatorKind binaryOperatorKind, BoundExpression right)
+        public BoundBinaryExpression(BoundExpression left, BoundBinaryOperator binaryOperator, BoundExpression right)
         {
             Left = left;
-            BinaryOperatorKind = binaryOperatorKind;
+            BinaryOperator = binaryOperator;
             Right = right;
         }
     }

@@ -34,88 +34,31 @@ namespace Compiler
         private BoundExpression _BindUnaryExpression(UnaryExpressionSyntax syntax)
         {
             BoundExpression boundRight = BindExpression(syntax.Right);
-            BoundUnaryOperatorKind? boundOperatorKind = _BindUnaryOperatorKind(syntax.OperatorToken.Kind, boundRight.Type);
+            BoundUnaryOperator boundUnaryOperator = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundRight.Type);
 
-            if (boundOperatorKind == null)
+            if (boundUnaryOperator == null)
             {
                 _Diagnostics.Add(new DiagnosticMessage($"Unary operator '{syntax.OperatorToken.ClearText}' is not defined for type {boundRight.Type}"));
                 return boundRight;
             }
 
-            return new BoundUnaryExpression(boundOperatorKind.Value, boundRight);
-        }
-
-        private BoundUnaryOperatorKind? _BindUnaryOperatorKind(SyntaxKind kind, Type type)
-        {
-            if (type == typeof(int))
-            {
-                switch(kind)
-                {
-                    case SyntaxKind.PlusToken:
-                        return BoundUnaryOperatorKind.Identity;
-                    case SyntaxKind.MinusToken:
-                        return BoundUnaryOperatorKind.Negation;
-                }
-            } 
-            else if (type == typeof(bool))
-            {
-                switch(kind)
-                {
-                    case SyntaxKind.BangToken: 
-                        return BoundUnaryOperatorKind.LogicalNegation;
-                }
-            }
-
-            return null;
+            return new BoundUnaryExpression(boundUnaryOperator, boundRight);
         }
 
         private BoundExpression _BindBinaryExpression(BinaryExpressionSyntax syntax)
         {
             BoundExpression boundLeft = BindExpression(syntax.Left);
             BoundExpression boundRight = BindExpression(syntax.Right);
-            BoundBinaryOperatorKind? boundOperatorToken = BindBinaryOperatorKind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
+            BoundBinaryOperator boundBinaryOperator =  BoundBinaryOperator.Bind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
             
-            if (boundOperatorToken == null)
+            if (boundBinaryOperator == null)
             {
                 _Diagnostics.Add(new DiagnosticMessage($"Binary operator '{syntax.OperatorToken.ClearText}' is not defined for type {boundLeft.Type}, {boundRight.Type}"));
                 return boundRight;
             }
             
-            return new BoundBinaryExpression(boundLeft, boundOperatorToken.Value, boundRight);
+            return new BoundBinaryExpression(boundLeft, boundBinaryOperator, boundRight);
         }
-
-        private BoundBinaryOperatorKind? BindBinaryOperatorKind(SyntaxKind kind, Type leftType, Type rightType)
-        {
-            if (leftType == typeof(int) && rightType == typeof(int))
-            {
-                switch (kind)
-                {
-                    case SyntaxKind.PlusToken:
-                        return BoundBinaryOperatorKind.Addition;
-                    case SyntaxKind.MinusToken:
-                        return BoundBinaryOperatorKind.Subtraction;
-                    case SyntaxKind.StarToken:
-                        return BoundBinaryOperatorKind.Multiplication;
-                    case SyntaxKind.SlashToken:
-                        return BoundBinaryOperatorKind.Division;
-                }
-            }
-
-            else if (leftType == typeof(bool) && rightType == typeof(bool))
-            {
-                switch (kind)
-                {
-                    case SyntaxKind.AmpersantAmpersantToken:
-                        return BoundBinaryOperatorKind.LogicalAnd;
-                    case SyntaxKind.PipePipeToken:
-                        return BoundBinaryOperatorKind.LogicalOr;
-                }
-            }
-            
-            return null;
-
-        }
-
         
         private BoundExpression _BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)
         {

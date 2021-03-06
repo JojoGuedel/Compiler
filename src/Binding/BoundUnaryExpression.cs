@@ -7,13 +7,13 @@ namespace Compiler
         public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
         public override Type Type => Right.Type;
 
-        public BoundUnaryOperatorKind UnaryOperatorKind { get; }
+        public BoundUnaryOperator UnaryOperator { get; }
         public BoundExpression Right { get; }
 
 
-        public BoundUnaryExpression(BoundUnaryOperatorKind unaryOperatorKind, BoundExpression right)
+        public BoundUnaryExpression(BoundUnaryOperator unaryOperator, BoundExpression right)
         {
-            UnaryOperatorKind = unaryOperatorKind;
+            UnaryOperator = unaryOperator;
             Right = right;
         }
     }
